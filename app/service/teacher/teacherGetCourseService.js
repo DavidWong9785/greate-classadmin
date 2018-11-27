@@ -109,6 +109,24 @@ class teacherGetCourseService extends Service {
         await ctx.helper.writeFile(`${pc.coursedoc}/${doc}.json`, JSON.stringify(data));
         return detail;
     }
+
+    // 老师获取课程统计信息
+    async teacherGetCountInfo(courseId) {
+        const { app } = this;
+        let data = await app.redis.get('count').get(courseId);
+        if (data != null) {
+            data = JSON.parse(data);
+        } else {
+            data = {
+                student: 0,
+                click: 0,
+                pass: 0,
+                fail: 0,
+            }
+            await app.redis.get('count').set(courseId, JSON.stringify(data));
+        }
+        return data;
+    }
 }
 
 module.exports = teacherGetCourseService;

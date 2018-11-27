@@ -13,6 +13,9 @@ class uploadAvatorService extends Service {
         return;
     }
     async deleteAvator(avator) {
+        if (avator == 'defaultAvatar.jpg') {
+            return;
+        }
         fs.unlinkSync(`${pc.avator}/${avator}`);
     }
 }

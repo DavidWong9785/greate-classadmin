@@ -6,7 +6,7 @@ class userApplyService extends Service {
         const { ctx } = this;
         // 看是否已经申报了，申报了就更新，没申报就添加
         const haveBeenApply = await ctx.model.Apply.checkMail(mail);
-        console.log('haveBeenApply' + haveBeenApply);
+        // console.log('haveBeenApply' + haveBeenApply);
         let tag = null;
         if (haveBeenApply !== null) {
             tag = await ctx.model.Apply.updateApplyInfo(mail, teacherName, courseName, courseDesc);

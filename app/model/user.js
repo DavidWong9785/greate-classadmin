@@ -76,5 +76,35 @@ module.exports = app => {
         return p.dataValues.username;
     };
 
+    User.changeAvator = async function(mail, avatar) {
+        const user = await this.findOne({
+            where: {
+                mail,
+            },
+        });
+        if (user == null) {
+            return;
+        }
+        await this.update({
+            avatar,
+        }, {
+            where: {
+                mail,
+            },
+        });
+        return user.dataValues.avatar;
+    };
+
+    User.changeInfo = async function(username, mail) {
+        await this.update({
+            username,
+        }, {
+            where: {
+                mail,
+            },
+        });
+        return;
+    };
+
     return User;
 };

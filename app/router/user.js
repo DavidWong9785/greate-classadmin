@@ -77,4 +77,9 @@ module.exports = app => {
     // 用户获取我的课程信息
     app.router.post('/userGetMyCourseInfo', checkLogin, app.controller.user.userLearningController.userGetMyCourseInfo);
     app.router.options('/userGetMyCourseInfo', app.controller.user.userLearningController.options);
+    // 用户上传头像
+    app.router.post('/userUploadAvatar', checkLogin, app.controller.user.userInfoController.userUploadAvatar);
+    // 用户修改用户名
+    app.router.post('/userChangeInfo', checkLogin, app.controller.user.userInfoController.userChangeInfo);
+    app.router.options('/userChangeInfo', app.controller.user.userInfoController.options);
 };

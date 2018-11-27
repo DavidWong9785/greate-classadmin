@@ -83,6 +83,18 @@ class teacherGetCourseController extends Controller {
             data,
         }
     }
+
+    // 老师获取课程统计信息
+    async teacherGetCountInfo() {
+        const { ctx } = this;
+        const courseId = ctx.cookies.get('courseId', {
+            signed: false,
+        });
+        const data = await ctx.service.teacher.teacherGetCourseService.teacherGetCountInfo(courseId);
+        ctx.body = {
+            data,
+        }
+    }
 }
 
 module.exports = teacherGetCourseController;

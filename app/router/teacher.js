@@ -110,4 +110,7 @@ module.exports = app => {
     // 老师获取学生信息
     app.router.post('/teacherGetStudentInfo', checkLogin, checkTag(app, '2'), app.controller.teacher.teacherHandleExamController.teacherGetStudentInfo);
     app.router.options('/teacherGetStudentInfo', app.controller.teacher.teacherHandleExamController.options);
+    // 老师获取学生信息
+    app.router.post('/teacherGetCountInfo', checkLogin, checkTag(app, '2'), app.controller.teacher.teacherGetCourseController.teacherGetCountInfo);
+    app.router.options('/teacherGetCountInfo', app.controller.teacher.teacherGetCourseController.options);
 };

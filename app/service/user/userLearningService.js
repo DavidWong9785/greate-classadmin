@@ -2,6 +2,7 @@
 const Service = require('egg').Service;
 const fs = require('fs');
 const pc = require('../../config/PathConstant');
+const cmd = require('node-cmd');
 
 class userLearningService extends Service {
     async options() {
@@ -26,11 +27,27 @@ class userLearningService extends Service {
     
     // 检查用户是否已经参加了本课程学习
     async userCheckHaveAttend(body) {
-        const { ctx } = this;
+        const { ctx, app } = this;
         const data = await ctx.model.Learning.userCheckHaveAttend(body);
         if (data === undefined || data === null) {
             return '0'
         } else {
+            // 往redis里写入
+            let redisContent = await app.redis.get('count').get(body.courseId);
+            let result;
+            if (redisContent != null) {
+                result = JSON.parse(redisContent);
+                +result.click++;
+                await app.redis.get('count').del(body.courseId);
+            } else {
+                result = {
+                    student: 0,
+                    click: 1,
+                    pass: 0,
+                    fail: 0,
+                };
+            }
+            await app.redis.get('count').set(body.courseId, JSON.stringify(result));
             return '1';
         }
     }
@@ -86,10 +103,25 @@ class userLearningService extends Service {
     
     // 用户参与课程学习
     async userAttendStudy(doc, mail, courseId) {
-        const { ctx } = this;
+        const { ctx, app } = this;
         const userdoc = ctx.helper.getSaltyMd5(mail, 'userdoc');
         await ctx.helper.makeDir(`${pc.userdoc}/${userdoc}`);
-
+        // 往redis里写入
+        let redisContent = await app.redis.get('count').get(courseId);
+        let result;
+        if (redisContent != null) {
+            result = JSON.parse(redisContent);
+            +result.student++;
+            await app.redis.get('count').del(courseId);
+        } else {
+            result = {
+                student: 1,
+                click: 0,
+                pass: 0,
+                fail: 0,
+            };
+        }
+        await app.redis.get('count').set(courseId, JSON.stringify(result));
         return new Promise((resolve, reject) => {
             fs.stat(`${pc.coursedoc}/${doc}.json`, function (err, data) {
                 resolve(data.ctime);

@@ -201,12 +201,32 @@ class teacherHandleExamService extends Service {
         
     // 老师改完卷
     async teacherFinishCorrect(courseId, examId, mail, gapScore, shortScore) {
-        const {ctx} = this;
+        const {ctx, app} = this;
         // 把成绩记录在attend，并修改状态
         const { single, multiple, judge, gap, short } = await ctx.model.Attend.finishCorrect(courseId, examId, mail, gapScore, shortScore);
         // 统计总成绩
         const examScore = +single + +multiple + +judge + +gap + +short;
         await ctx.model.Learning.addFinalScore(courseId, mail, examScore);
+        // 往redis里写入
+        let redisContent = await app.redis.get('count').get(body.courseId);
+        let result;
+        if (redisContent != null) {
+            result = JSON.parse(redisContent);
+            if (examScore >= 60) {
+                +result.pass++;
+            } else {
+                +result.fail++;
+            }
+            await app.redis.get('count').del(courseId);
+        } else {
+            result = {
+                student: 0,
+                click: 0,
+                pass: examScore >= 60? 1 : 0,
+                fail: examScore >= 60? 0 : 1,
+            };
+        }
+        await app.redis.get('count').set(courseId, JSON.stringify(result));
         return;
     }
         
